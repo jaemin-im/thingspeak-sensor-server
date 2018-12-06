@@ -4,12 +4,10 @@ import json
 import pandas as pd
 import requests
 from flask import Flask
-from flask_restful import Resource, Api
 
 import secrets as s
 
 app = Flask(__name__)
-api = Api(app)
 
 
 def data(debug):
@@ -51,23 +49,23 @@ def data(debug):
         print(humid_df_list[0])
         print('=== Mission Complete! ===')
 
-    test = {'td1': temp_df_list[0].iloc[-1, 0], 'tv1': float(temp_df_list[0].iloc[-1, 1]),
-            'hd1': humid_df_list[0].iloc[-1, 0], 'hv1': float(humid_df_list[0].iloc[-1, 1]),
-            'td2': temp_df_list[1].iloc[-1, 0], 'tv2': float(temp_df_list[1].iloc[-1, 1]),
-            'hd2': humid_df_list[1].iloc[-1, 0], 'hv2': float(humid_df_list[1].iloc[-1, 1]),
-            'td3': temp_df_list[2].iloc[-1, 0], 'tv3': float(temp_df_list[2].iloc[-1, 1]),
-            'hd3': humid_df_list[2].iloc[-1, 0], 'hv3': float(humid_df_list[2].iloc[-1, 1]),
-            'td4': temp_df_list[3].iloc[-1, 0], 'tv4': float(temp_df_list[3].iloc[-1, 1]),
-            'hd4': humid_df_list[3].iloc[-1, 0], 'hv4': float(humid_df_list[3].iloc[-1, 1])
+    test = {'td1': str(temp_df_list[0].iloc[-1, 0]), 'tv1': float(temp_df_list[0].iloc[-1, 1]),
+            'hd1': str(humid_df_list[0].iloc[-1, 0]), 'hv1': float(humid_df_list[0].iloc[-1, 1]),
+            'td2': str(temp_df_list[1].iloc[-1, 0]), 'tv2': float(temp_df_list[1].iloc[-1, 1]),
+            'hd2': str(humid_df_list[1].iloc[-1, 0]), 'hv2': float(humid_df_list[1].iloc[-1, 1]),
+            'td3': str(temp_df_list[2].iloc[-1, 0]), 'tv3': float(temp_df_list[2].iloc[-1, 1]),
+            'hd3': str(humid_df_list[2].iloc[-1, 0]), 'hv3': float(humid_df_list[2].iloc[-1, 1]),
+            'td4': str(temp_df_list[3].iloc[-1, 0]), 'tv4': float(temp_df_list[3].iloc[-1, 1]),
+            'hd4': str(humid_df_list[3].iloc[-1, 0]), 'hv4': float(humid_df_list[3].iloc[-1, 1])
             }
     return test
 
 
-# class ReturnData(Resource):
-#     def get(self):
-#         try:
-#             return
+@app.route('/data')
+def return_data():
+    return json.dumps(data(False))
 
 
 if __name__ == '__main__':
-    print(data(debug=True))
+    # data(True)
+    app.run(debug=True)
