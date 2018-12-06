@@ -36,11 +36,11 @@ def data(debug):
     humid_req_results = [json.loads(result.text) for result in humid_req_results_raw]
 
     temp_df_list = [pd.concat([(pd.DataFrame.from_dict(res['feeds']).dropna())['created_at'].map(
-        lambda x: datetime.datetime.strptime(x, '%Y-%m-%dT%H:%M:%SZ')),
+        lambda x: datetime.datetime.strptime(x, '%Y-%m-%dT%H:%M:%SZ') + datetime.timedelta(hours=9)),
         (pd.DataFrame.from_dict(res['feeds']).dropna())['field1'].map(
             lambda x: x.rstrip('\r\n'))], axis=1) for res in temp_req_results]
     humid_df_list = [pd.concat([(pd.DataFrame.from_dict(res['feeds']).dropna())['created_at'].map(
-        lambda x: datetime.datetime.strptime(x, '%Y-%m-%dT%H:%M:%SZ')),
+        lambda x: datetime.datetime.strptime(x, '%Y-%m-%dT%H:%M:%SZ') + datetime.timedelta(hours=9)),
         (pd.DataFrame.from_dict(res['feeds']).dropna())['field2'].map(
             lambda x: x.rstrip('\r\n'))], axis=1) for res in humid_req_results]
 
