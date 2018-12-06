@@ -1,18 +1,25 @@
-from pandas.io.json import json_normalize
+import datetime
+import json
 
 import pandas as pd
 import requests
-import json
+from flask import Flask
+from flask_restful import Resource, Api
 
 import secrets as s
 
+app = Flask(__name__)
+api = Api(app)
 
-def main(debug):
+
+def data(debug):
     channels = [s.c[0], s.c[1], s.c[2], s.c[3]]
     channels = [str(channel) for channel in channels if channel is not None]
 
-    temp_req_urls = ['https://thingspeak.com/channels/' + channel + '/fields/1.json' for channel in channels if channel is not None]
-    humid_req_urls = ['https://thingspeak.com/channels/' + channel + '/fields/2.json' for channel in channels if channel is not None]
+    temp_req_urls = ['https://thingspeak.com/channels/' + channel + '/fields/1.json' for channel in channels if
+                     channel is not None]
+    humid_req_urls = ['https://thingspeak.com/channels/' + channel + '/fields/2.json' for channel in channels if
+                      channel is not None]
 
     if debug:
         print(temp_req_urls)
@@ -30,15 +37,37 @@ def main(debug):
     temp_req_results = [json.loads(result.text) for result in temp_req_results_raw]
     humid_req_results = [json.loads(result.text) for result in humid_req_results_raw]
 
+    temp_df_list = [pd.concat([(pd.DataFrame.from_dict(res['feeds']).dropna())['created_at'].map(
+        lambda x: datetime.datetime.strptime(x, '%Y-%m-%dT%H:%M:%SZ')),
+        (pd.DataFrame.from_dict(res['feeds']).dropna())['field1'].map(
+            lambda x: x.rstrip('\r\n'))], axis=1) for res in temp_req_results]
+    humid_df_list = [pd.concat([(pd.DataFrame.from_dict(res['feeds']).dropna())['created_at'].map(
+        lambda x: datetime.datetime.strptime(x, '%Y-%m-%dT%H:%M:%SZ')),
+        (pd.DataFrame.from_dict(res['feeds']).dropna())['field2'].map(
+            lambda x: x.rstrip('\r\n'))], axis=1) for res in humid_req_results]
+
     if debug:
-        temp_df = [pd.DataFrame.from_dict(res['feeds']).dropna() for res in temp_req_results]
-        humid_df = [pd.DataFrame.from_dict(res['feeds']).dropna() for res in humid_req_results]
+        print(temp_df_list[0])
+        print(humid_df_list[0])
+        print('=== Mission Complete! ===')
 
-        print(temp_df[0])
-        print(humid_df[0])
+    test = {'td1': temp_df_list[0].iloc[-1, 0], 'tv1': float(temp_df_list[0].iloc[-1, 1]),
+            'hd1': humid_df_list[0].iloc[-1, 0], 'hv1': float(humid_df_list[0].iloc[-1, 1]),
+            'td2': temp_df_list[1].iloc[-1, 0], 'tv2': float(temp_df_list[1].iloc[-1, 1]),
+            'hd2': humid_df_list[1].iloc[-1, 0], 'hv2': float(humid_df_list[1].iloc[-1, 1]),
+            'td3': temp_df_list[2].iloc[-1, 0], 'tv3': float(temp_df_list[2].iloc[-1, 1]),
+            'hd3': humid_df_list[2].iloc[-1, 0], 'hv3': float(humid_df_list[2].iloc[-1, 1]),
+            'td4': temp_df_list[3].iloc[-1, 0], 'tv4': float(temp_df_list[3].iloc[-1, 1]),
+            'hd4': humid_df_list[3].iloc[-1, 0], 'hv4': float(humid_df_list[3].iloc[-1, 1])
+            }
+    return test
 
-    print('=== Mission Complete! ===')
+
+# class ReturnData(Resource):
+#     def get(self):
+#         try:
+#             return
 
 
 if __name__ == '__main__':
-    main(debug=True)
+    print(data(debug=True))
