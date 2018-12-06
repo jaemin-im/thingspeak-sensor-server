@@ -5,9 +5,9 @@ import secrets as s
 debug = 1
 
 channels = [s.c[0], s.c[1], s.c[2], s.c[3]]
-channels = [str(channel) for channel in channels]
+channels = [str(channel) for channel in channels if channel != None]
 
-req_urls = ['https://thingspeak.com/channels/' + channel + '/feed.json' for channel in channels]
+req_urls = ['https://thingspeak.com/channels/' + channel + '/feed.json' for channel in channels if channel != None]
 
 if debug:
     print(req_urls)
